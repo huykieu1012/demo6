@@ -1,0 +1,130 @@
+package com.example.b5_hibernate.controller;
+
+import com.example.b5_hibernate.entity.KhachHang;
+import com.example.b5_hibernate.repositoty.KhachHangRepositoty;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.*;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
+
+@WebServlet(name = "KhachHangServlet",value = {"/khach-hang/hien-thi",
+        "/khach-hang/add",
+        "/khach-hang/detail",
+        "/khach-hang/remove",
+        "/khach-hang/update"})
+public class KhachHangServlet extends HttpServlet {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private KhachHangRepositoty khachHangRepositoty= new KhachHangRepositoty();
+    private  UUID idUpdate;
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String uri = request.getRequestURI();
+        if (uri.contains("/hien-thi")) {
+            ArrayList<KhachHang> listKhachHang = khachHangRepositoty.getAll();
+            request.setAttribute("listKhachHang", listKhachHang);
+            request.getRequestDispatcher("/view/khachHang.jsp").forward(request,response);
+        } else if (uri.contains("/detail")) {
+            System.out.println("id detail: "+request.getParameter("id"));
+            UUID id = UUID.fromString(request.getParameter("id"));
+            idUpdate =id;
+            KhachHang khachHang = khachHangRepositoty.getById(id);
+
+            request.setAttribute("khachHang", khachHang);
+            System.out.println(khachHang.getNgaySinh());
+            String ngaySinh = dateFormat.format(khachHang.getNgaySinh());
+            request.setAttribute("ngaySinh", ngaySinh);
+            request.getRequestDispatcher("/view/khachHang/detail.jsp").forward(request, response);
+
+
+        }else if(uri.contains("/remove")){
+            UUID id = UUID.fromString(request.getParameter("id"));
+            KhachHang khachHang = khachHangRepositoty.getById(id);
+            khachHangRepositoty.delete(khachHang);
+            ArrayList<KhachHang> listKhachHang = khachHangRepositoty.getAll();
+            request.setAttribute("listKhachHang", listKhachHang);
+            request.getRequestDispatcher("/view/khachHang.jsp").forward(request,response);
+        }
+
+
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    String uri = request.getRequestURI();
+        String x = request.getParameter("id");
+        System.out.println("x la: "+x);
+    if(uri.contains("/add")){
+        System.out.println("dang o add");
+        String ma = request.getParameter("ma");
+        String ten = request.getParameter("ten");
+        String tenDem = request.getParameter("tenDem");
+        String sdt = request.getParameter("sdt");
+        String diaChi = request.getParameter("diaChi");
+        String thanhPho = request.getParameter("thanhPho");
+        String quocGia = request.getParameter("quocGia");
+        String matKhau = request.getParameter("matKhau");
+        String ho = request.getParameter("ho");
+        Date ngaySinh ;
+        try {
+            ngaySinh = dateFormat.parse(request.getParameter("ngaySinh"));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        KhachHang khachHang = new KhachHang();
+        khachHang.setDiaChi(diaChi);
+        khachHang.setHo(ho);
+        khachHang.setMatKhau(matKhau);
+        khachHang.setNgaySinh(ngaySinh);
+        khachHang.setQuocGia(quocGia);
+        khachHang.setSdt(sdt);
+        khachHang.setTen(ten);
+        khachHang.setTenDem(tenDem);
+        khachHang.setThanhPho(thanhPho);
+        khachHang.setMa(ma);
+        System.out.println(khachHang.toString());
+        khachHangRepositoty.add(khachHang);
+        response.sendRedirect("/khach-hang/hien-thi");
+    }else if(uri.contains("/update")){
+        System.out.println("dang o update");
+        System.out.println("id la:" + request.getParameter("id"));
+
+
+        String ma = request.getParameter("ma");
+        String ten = request.getParameter("ten");
+        String tenDem = request.getParameter("tenDem");
+        String sdt = request.getParameter("sdt");
+        String diaChi = request.getParameter("diaChi");
+        String thanhPho = request.getParameter("thanhPho");
+        String quocGia = request.getParameter("quocGia");
+        String matKhau = request.getParameter("matKhau");
+        String ho = request.getParameter("ho");
+        Date ngaySinh;
+        try {
+            ngaySinh = dateFormat.parse(request.getParameter("ngaySinh"));
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        KhachHang khachHang = new KhachHang();
+        khachHang.setId(idUpdate);
+        khachHang.setMa(ma);
+        khachHang.setTen(ten);
+        khachHang.setHo(ho);
+        khachHang.setTenDem(tenDem);
+        khachHang.setNgaySinh(ngaySinh);
+        khachHang.setSdt(sdt);
+        khachHang.setDiaChi(diaChi);
+        khachHang.setThanhPho(thanhPho);
+        khachHang.setQuocGia(quocGia);
+        khachHang.setMatKhau(matKhau);
+        khachHangRepositoty.update(khachHang);
+        response.sendRedirect("/khach-hang/hien-thi");
+    }
+    }
+}

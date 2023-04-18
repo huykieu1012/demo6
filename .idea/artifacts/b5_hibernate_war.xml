@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="b5_hibernate:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>b5_hibernate</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="b5_hibernate-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="b5_hibernate:war exploded" />
+    </root>
+  </artifact>
+</component>
